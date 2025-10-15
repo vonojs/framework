@@ -7,9 +7,10 @@ type BuildTarget = string;
 
 interface VonoConfig {
 	vite: ViteConfig
-	nitro: NitroPluginConfig
-	plugins?: Array<(vono: Vono) => void>
-	entries: {
+	nitro: NonNullable<NitroPluginConfig["config"]>
+	plugins: Array<(vono: Vono) => void>
+	apiRouteDirectory?: string,
+	files: {
 		client: {
 			main?: string,
 			devMain?: string,
@@ -23,6 +24,18 @@ interface VonoConfig {
 			devRenderer?: string,
 			prodRenderer?: string,
 		},
+	},
+	runtimes: {
+		client: {
+			dev?: string,
+			prod?: string,
+		},
+		server: {
+			dev?: string,
+			prod?: string,
+			rendererDev?: string,
+			rendererProd?: string,
+		}
 	}
 }
 
@@ -32,13 +45,16 @@ export class Vono {
 	constructor(public readonly userConfigFunction?: (vono: Vono) => void) {}
 
 	readonly config: VonoConfig = {
-		nitro: {
-			config: {}
-		},
+		plugins: [],
+		nitro: {},
 		vite: {
 			plugins: [],
 		},
-		entries: {
+		files: {
+			client: {},
+			server: {},
+		},
+		runtimes: {
 			client: {},
 			server: {},
 		}
@@ -49,8 +65,8 @@ export class Vono {
 	}
 
 	readonly buildFor = (output: BuildTarget, options: any) => {
-		this.config.nitro.config.preset = output
-		this.config.nitro.config = defu(this.config.nitro.config, options)
+		this.config.nitro.preset = output
+		this.config.nitro = defu(this.config.nitro!, options)
 	}
 
 	readonly vitePlugin = (plugins: ViteConfig["plugins"]) => {
@@ -61,48 +77,56 @@ export class Vono {
 		this.config.vite = defu(this.config.vite, config)
 	}
 
-	readonly nitroConfig = (config: NitroPluginConfig) => {
+	readonly nitroConfig = (config: NitroPluginConfig["config"]) => {
 		this.config.nitro = defu(this.config.nitro, config)
 	}
 
 	readonly serverMain = (path: string) => {
-		this.config.entries.server.main = path
+		this.config.files.server.main = path
 	}
 
 	readonly serverDevMain = (path: string) => {
-		this.config.entries.server.devMain = path
+		this.config.files.server.devMain = path
 	}
 
 	readonly serverProdMain = (path: string) => {
-		this.config.entries.server.prodMain = path
+		this.config.files.server.prodMain = path
 	}
 
 	readonly clientMain = (path: string) => {
-		this.config.entries.client.main = path
+		this.config.files.client.main = path
 	}
 
 	readonly clientDevMain = (path: string) => {
-		this.config.entries.client.devMain = path
+		this.config.files.client.devMain = path
 	}
 
 	readonly clientProdMain = (path: string) => {
-		this.config.entries.client.prodMain = path
+		this.config.files.client.prodMain = path
 	}
 
 	readonly serverRenderer = (path: string) => {
-		this.config.entries.server.renderer = path
+		this.config.files.server.renderer = path
 	}
 
 	readonly serverDevRenderer = (path: string) => {
-		this.config.entries.server.devRenderer = path
+		this.config.files.server.devRenderer = path
 	}
 
 	readonly serverProdRenderer = (path: string) => {
-		this.config.entries.server.prodRenderer = path
+		this.config.files.server.prodRenderer = path
 	}
 
-	readonly setVirtualFile = (id: string, code: string | (() => string | Promise<string>)) => {
+	readonly virtualFile = (id: string, code: string | (() => string | Promise<string>)) => {
 		this.vfs.set(id, code)
+	}
+
+	readonly runtimes = (fn: (runtimes: VonoConfig["runtimes"]) => void) => {
+		fn(this.config.runtimes)
+	}
+
+	readonly apiRouteDirectory = (path: string) => {
+		this.config.apiRouteDirectory = path
 	}
 
 	readonly vfs = new VirtualFileSystem()

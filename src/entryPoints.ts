@@ -29,7 +29,7 @@ export class VonoEntryPoints {
 		return this[`server${mode === "dev" ? "Dev" : "Prod"}Renderer`] ?? this[`serverRenderer`]
 	}
 
-	constructor(entries: Vono["config"]["entries"]) {
+	constructor(entries: Vono["config"]["files"]) {
 		this.serverMain = this.resolveEntry(entries.server.main ?? "src/serverMain/main")
 		this.serverDevMain = this.resolveEntry(entries.server.devMain ?? "src/serverMain/devMain")
 		this.serverProdMain = this.resolveEntry(entries.server.prodMain ?? "src/serverMain/prodMain")
