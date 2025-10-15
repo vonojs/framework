@@ -1,6 +1,6 @@
 {
   "name": "@vonojs/framework",
-  "version": "0.0.17",
+  "version": "0.0.20",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -23,7 +23,7 @@
   ],
   "bin": {
     "vono": "./dist/cli.js",
-    "create": "./dist/create.js"
+    "@vonojs/framework": "./dist/create.js"
   },
   "exports": {
     ".": {

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { consola } from "consola";
 import * as fs from "node:fs/promises";
 import {fileExists} from "./utils.ts";
@@ -57,7 +59,7 @@ await fs.writeFile(
 
 // https://github.com/vonojs/framework
 export default new Vono(({ buildFor }) => {
-	${target === "Node" ? "" : `buildFor("${targets[target]})`}
+	${target === "Node" ? "" : `buildFor("${targets[target]}")`}
 })`
 )
 
@@ -70,7 +72,7 @@ await fs.writeFile(path.join(process.cwd(), name, "package.json"), `{
     "build": "vono build"
   },
   "dependencies": {
-    "@vonojs/framework": "^0.0.17",
+    "@vonojs/framework": "latest",
     "typescript": "^5.9.3"
   }
 }
@@ -178,3 +180,9 @@ await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "assets",
 await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "routes", "api", "ping.ts"), `export default () => {
   return "ping";
 }`)
+
+consola.success("Project created successfully!")
+consola.log("")
+consola.info("To get started, run:")
+consola.log(`  cd ${name}`)
+consola.log("  vono dev")
