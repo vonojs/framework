@@ -1,6 +1,6 @@
 {
   "name": "@vonojs/framework",
-  "version": "0.0.10",
+  "version": "0.0.17",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -22,7 +22,8 @@
     "dist"
   ],
   "bin": {
-    "vono": "./dist/cli.js"
+    "vono": "./dist/cli.js",
+    "create": "./dist/create.js"
   },
   "exports": {
     ".": {
@@ -33,7 +34,10 @@
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts"
     },
-    "./client": "./dist/client.d.ts"
+    "./client": "./dist/client.d.ts",
+    "./react": {
+      "import": "./dist/plugins/react/mod.js"
+    }
   },
   "devDependencies": {
     "esbuild": "^0.25.11"

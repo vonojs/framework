@@ -60,13 +60,13 @@ export class Vono {
 		}
 	}
 
-	plugin(plugin: (vono: Vono) => void) {
+	plugin = (plugin: (vono: Vono) => void) => {
 		this.config.plugins?.push(plugin)
 	}
 
-	readonly buildFor = (output: BuildTarget, options: any) => {
+	readonly buildFor = (output: BuildTarget, options?: any) => {
 		this.config.nitro.preset = output
-		this.config.nitro = defu(this.config.nitro!, options)
+		this.config.nitro = defu(this.config.nitro!, options ?? {})
 	}
 
 	readonly vitePlugin = (plugins: ViteConfig["plugins"]) => {

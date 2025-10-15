@@ -1,0 +1,180 @@
+import { consola } from "consola";
+import * as fs from "node:fs/promises";
+import {fileExists} from "./utils.ts";
+import path from "node:path";
+
+consola.start("Creating vono.js project");
+let name = await consola.prompt("Enter project name:");
+
+if(!name || typeof name !== "string" || name.trim().length === 0) {
+	consola.error("Project name is required");
+	process.exit(1)
+}
+
+name = name.trim();
+
+const exists = await fileExists(path.join(process.cwd(), name))
+
+if(exists) {
+	consola.error(`Directory ${name} already exists`);
+	process.exit(1)
+}
+
+const target = await consola.prompt("Choose a built target (this can be changed later):", {
+	type: "select",
+	options: [
+		"Node",
+		"Deno",
+		"Bun",
+		"Cloudflare",
+		"Netlify",
+		"Deno Deploy",
+		"Azure",
+		"AWS Lambda",
+		"Vercel",
+	],
+	initial: "Node.js"
+})
+
+const targets = {
+	"Deno": "deno",
+	"Bun": "bun",
+	"Cloudflare": "cloudflare-module",
+	"Netlify": "netlify",
+	"Deno Deploy": "deno_deploy",
+	"Azure": "azure",
+	"AWS Lambda": "aws_lambda",
+	"Vercel": "vercel",
+}
+
+consola.log("")
+consola.start("Creating project...");
+
+await fs.mkdir(name, {recursive: true})
+await fs.writeFile(
+	path.join(process.cwd(), name, "vono.config.ts"),
+	`import { Vono } from "@vonojs/framework";
+
+// https://github.com/vonojs/framework
+export default new Vono(({ buildFor }) => {
+	${target === "Node" ? "" : `buildFor("${targets[target]})`}
+})`
+)
+
+await fs.writeFile(path.join(process.cwd(), name, "package.json"), `{
+  "name": "${name}",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vono dev",
+    "build": "vono build"
+  },
+  "dependencies": {
+    "@vonojs/framework": "^0.0.17",
+    "typescript": "^5.9.3"
+  }
+}
+`)
+
+await fs.writeFile(path.join(process.cwd(), name, ".gitignore"), `logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+node_modules
+dist
+dist-ssr
+*.local
+.output
+.wrangler
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+`)
+
+await fs.writeFile(path.join(process.cwd(), name, "tsconfig.json"), `{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "types": ["@vonojs/framework/client"],
+    "paths": {
+      "~/clientMain/*": ["./src/clientMain/*"],
+      "~/serverMain/*": ["./src/serverMain/*"],
+    }
+  },
+}
+`)
+
+await fs.mkdir(path.join(process.cwd(), name, "src"), {recursive: true})
+await fs.mkdir(path.join(process.cwd(), name, "src", "clientMain"), {recursive: true})
+await fs.mkdir(path.join(process.cwd(), name, "src", "serverMain"), {recursive: true})
+await fs.mkdir(path.join(process.cwd(), name, "src", "serverMain", "routes", "api"), {recursive: true})
+await fs.mkdir(path.join(process.cwd(), name, "src", "clientMain", "assets"), {recursive: true})
+
+await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "main.ts"), `import "~/clientMain/assets/styles.css"
+
+console.log("Hello from clientMain!")
+`)
+
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "main.ts"), `function loggingMiddleware(context: Request) {
+  console.log(\`[\${Date.now()}] Request: \${new URL(context.url).pathname}\`)
+}
+
+export default function(request: Request) {
+	loggingMiddleware(request)
+}
+`)
+
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"), `import { clientEntry, css } from "@vonojs/framework/server";
+
+export default function(request: Request) {
+	return new Response(template, { headers: { "content-type": "text/html" } })
+}
+
+const template = \`
+<!DOCTYPE html>
+<head>
+	\${css.map(c => \`<link rel="stylesheet" href="\${c}">\`).join("\\n")}
+	<script type="module" src="\${clientEntry}"></script>
+</head>
+<body>
+	<h1>Hello World!</h1>
+</body>
+</html>
+\`
+`)
+
+await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "assets", "styles.css"), `body {
+	font-family: sans-serif;
+}
+`)
+
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "routes", "api", "ping.ts"), `export default () => {
+  return "ping";
+}`)

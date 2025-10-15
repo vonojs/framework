@@ -6,9 +6,41 @@ import virtualServerFile from "./virtual/server.ts";
 import {defaultRuntimes} from "./runtime/index.ts";
 import defu from "defu";
 import {nitro} from "nitro/vite"
+import consola from "consola";
+import {fileExists} from "./utils.ts";
 
-export function configure(vono: Vono, mode: "dev" | "prod") {
+export async function configure(vono: Vono, mode: "dev" | "prod") {
+	vono.viteConfig({
+		plugins: [
+			vono.vfs.vitePlugin(),
+			virtualManifest(),
+			tsconfigPaths(),
+		],
+	})
+
+	try {
+		vono.userConfigFunction?.(vono)
+	} catch (e) {
+		consola.error("Error in vono config function:", e)
+		process.exit(1)
+	}
+
+	for(const plugin of vono.config.plugins) {
+		try {
+			plugin(vono)
+		} catch (e) {
+			consola.error(`Error in plugin ${plugin.name}:`, e)
+			process.exit(1)
+		}
+	}
+
 	const entries = new VonoEntryPoints(vono.config.files)
+
+	const serverEntry = entries.getServerEntry(mode)
+	if(!serverEntry) {
+		consola.error("No server entry found. Ensure that you have a server entry defined in your vono config.")
+		process.exit(1)
+	}
 
 	const runtimes = {
 		server: vono.config.runtimes.server[mode] ?? defaultRuntimes.server[mode],
@@ -20,33 +52,38 @@ export function configure(vono: Vono, mode: "dev" | "prod") {
 		),
 	}
 
-	const serverEntry = entries.getServerEntry(mode)
-	if(!serverEntry) {
-		throw new Error("No server entry found")
-	}
+	const clientEntryPath = entries.getClientEntry(mode)?.path;
+	const clientEntryExists = clientEntryPath ? await fileExists(clientEntryPath) : false;
+
+	const rendererEntryPath = entries.getRendererEntry(mode)?.path;
+	const rendererEntryExists = rendererEntryPath ? await fileExists(rendererEntryPath) : false;
 
 	vono.viteConfig({
 		build: {
 			manifest: true,
+			rolldownOptions: {
+				output: {
+					advancedChunks: {
+						groups: [
+							{
+								test: /#vite-manifest/,
+								name: "manifest",
+							}
+						]
+					}
+				}
+			}
 		},
-		plugins: [
-			vono.vfs.vitePlugin(),
-			virtualManifest(),
-			tsconfigPaths(),
-		],
 		resolve: {
 			alias: {
 				"@vonojs/framework/server": "#vono/server",
 				// bind USER entry points to aliased paths
 				"@vonojs/framework/serverEntry": serverEntry.path,
-				"@vonojs/framework/clientEntry": entries.getClientEntry(mode)?.path ?? "",
-				"@vonojs/framework/rendererEntry": entries.getRendererEntry(mode)?.path ?? "",
+				"@vonojs/framework/clientEntry": clientEntryExists ? clientEntryPath : "",
+				"@vonojs/framework/rendererEntry": rendererEntryExists ? rendererEntryPath : "",
 			},
 		}
 	})
-
-	// apply user config
-	vono.userConfigFunction?.(vono)
 
 	// set virtual server file to point to correct runtime
 	vono.vfs.set(
@@ -70,7 +107,7 @@ export function configure(vono: Vono, mode: "dev" | "prod") {
 
 	// if client entry is defined, use it as input for client build
 	const clientEntry = entries.getClientEntry(mode)
-	if(clientEntry) {
+	if(clientEntry && await fileExists(clientEntry.path)) {
 		vono.viteConfig({
 			environments: {
 				client: {
