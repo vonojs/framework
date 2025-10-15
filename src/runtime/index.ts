@@ -5,13 +5,13 @@ export const runtimeDirectory = resolveThisDir(import.meta.url);
 
 export const defaultRuntimes =  {
 	client: {
-		dev: path.join(runtimeDirectory, "dev", "client.ts"),
-			prod: path.join(runtimeDirectory, "prod", "client.ts")
+		dev: path.join(runtimeDirectory, "dev", "client"),
+			prod: path.join(runtimeDirectory, "prod", "client")
 	},
 	server: {
-		dev: path.join(runtimeDirectory, "dev", "server.ts"),
-			prod: path.join(runtimeDirectory, "prod", "server.ts"),
-			rendererDev: path.join(runtimeDirectory, "dev", "renderer.ts"),
-			rendererProd: path.join(runtimeDirectory, "prod", "renderer.ts"),
+		dev: path.join(runtimeDirectory, "dev", "server"),
+			prod: path.join(runtimeDirectory, "prod", "server"),
+			rendererDev: path.join(runtimeDirectory, "dev", "renderer"),
+			rendererProd: path.join(runtimeDirectory, "prod", "renderer"),
 	},
 }

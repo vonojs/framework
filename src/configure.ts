@@ -2,9 +2,8 @@ import type {Vono} from "./mod.ts";
 import {VonoEntryPoints} from "./entryPoints.ts";
 import {virtualManifest} from "./manifestPlugin.ts";
 import tsconfigPaths from "vite-tsconfig-paths";
-import tailwindcss from "@tailwindcss/vite";
 import virtualServerFile from "./virtual/server.ts";
-import {defaultRuntimes} from "./runtime";
+import {defaultRuntimes} from "./runtime/index.ts";
 import defu from "defu";
 import {nitro} from "nitro/vite"
 
@@ -34,7 +33,6 @@ export function configure(vono: Vono, mode: "dev" | "prod") {
 			vono.vfs.vitePlugin(),
 			virtualManifest(),
 			tsconfigPaths(),
-			tailwindcss(),
 		],
 		resolve: {
 			alias: {
@@ -67,8 +65,6 @@ export function configure(vono: Vono, mode: "dev" | "prod") {
 			entry: runtimes.renderer
 		}) : undefined,
 	})
-
-	console.log(nitroConfig)
 
 	vono.vitePlugin(nitro({ config: nitroConfig }))
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import process from "node:process"
 import {dev} from "./dev.ts";
 import {build} from "./build.ts";

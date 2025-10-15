@@ -2,8 +2,8 @@ import { createBuilder } from "vite";
 import {loadConfig,} from "c12";
 import type {Vono} from "./mod.ts";
 import {configure} from "./configure.ts";
-export async function build() {
 
+export async function build() {
 	const configFile = await loadConfig<Vono>({
 		configFile: "vono.config",
 	})
