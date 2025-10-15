@@ -94,7 +94,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 
 	const nitroConfig = defu(vono.config.nitro, {
 		devServer: {
-			port: 8000,
+			port: vono.config.port ?? 8000,
 		},
 		serverEntry: runtimes.server,
 		routesDir: vono.config.apiRouteDirectory ?? "src/serverMain/routes",

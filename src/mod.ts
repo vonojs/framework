@@ -10,6 +10,7 @@ interface VonoConfig {
 	nitro: NonNullable<NitroPluginConfig["config"]>
 	plugins: Array<(vono: Vono) => void>
 	apiRouteDirectory?: string,
+	port?: number,
 	files: {
 		client: {
 			main?: string,
@@ -127,6 +128,10 @@ export class Vono {
 
 	readonly apiRouteDirectory = (path: string) => {
 		this.config.apiRouteDirectory = path
+	}
+
+	readonly port = (port: number) => {
+		this.config.port = port
 	}
 
 	readonly vfs = new VirtualFileSystem()

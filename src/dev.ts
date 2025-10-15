@@ -38,7 +38,7 @@ class ViteDevInstance {
 		}
 		this.server = await createServer(config)
 		await this.server.listen(undefined, isRestart)
-		consola.success(`Development server ${isRestart ? "restarted" : "started"}`)
+		consola.success(`Development server ${isRestart ? "restarted" : "started"} at http://localhost:${this.server.config.server.port}`)
 	}
 	server?: ViteDevServer
 }
