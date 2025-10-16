@@ -1,4 +1,4 @@
-import type {Vono} from "./mod.ts";
+import {type Vono, vonoInternal} from "./mod.ts";
 import {VonoEntryPoints} from "./entryPoints.ts";
 import {virtualManifest} from "./manifestPlugin.ts";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -19,7 +19,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 	})
 
 	try {
-		await vono.userConfigFunction?.(vono)
+		await vono[vonoInternal].userConfigFunction?.(vono)
 	} catch (e) {
 		consola.error("Error in vono config function:", e)
 		process.exit(1)
@@ -122,7 +122,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 		})
 	}
 
-	for (const afterConfigCallback of vono.afterConfigCallbacks) {
+	for (const afterConfigCallback of vono[vonoInternal].afterConfigCallbacks) {
 		try {
 			await afterConfigCallback(vono)
 		} catch (e) {

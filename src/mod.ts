@@ -53,10 +53,23 @@ interface VonoConfig {
 	}
 }
 
+/**
+ * Vono plugins are functions that are called with the Vono object as an argument.
+ * They can be used to add functionality to the build process.
+ * @param vono - The Vono object.
+ */
 export type VonoPlugin = (vono: Vono) => void | Promise<void>;
 
+/**
+ * Key for internal properties of the Vono object.
+ * @internal
+ */
+export const vonoInternal = Symbol.for("vonoInternal")
+
 export class Vono {
-	constructor(public readonly userConfigFunction?: (vono: Vono) => Promise<void> | void) {}
+	constructor(userConfigFunction?: (vono: Vono) => Promise<void> | void) {
+		this[vonoInternal].userConfigFunction = userConfigFunction
+	}
 
 	readonly config: VonoConfig = {
 		plugins: [],
@@ -94,76 +107,154 @@ export class Vono {
 		this.config.nitro = defu(this.config.nitro!, options ?? {})
 	}
 
+	/**
+	 * Add a vite plugin or plugins to the config.
+	 * @param plugins
+	 */
 	readonly vitePlugins = (...plugins: PluginOption[]) => {
 		this.config.vite.plugins!.push(plugins)
 	}
 
+	/**
+	 * Update vite config.
+	 * @param config - Vite config object.
+	 */
 	readonly viteConfig = (config: ViteConfig) => {
 		this.config.vite = defu(this.config.vite, config)
 	}
 
+	/**
+	 * Update nitro config.
+	 * @param config - Nitro config object.
+	 */
 	readonly nitroConfig = (config: NitroPluginConfig["config"]) => {
 		this.config.nitro = defu(this.config.nitro, config)
 	}
 
+	/**
+	 * Set the main server entry point.
+	 * @param path
+	 */
 	readonly serverMain = (path: string) => {
 		this.config.files.server.main = path
 	}
 
+	/**
+	 * Set the server entry point for development.
+	 * @param path
+	 */
 	readonly serverDevMain = (path: string) => {
 		this.config.files.server.devMain = path
 	}
 
+	/**
+	 * Set the server entry point for production.
+	 * @param path
+	 */
 	readonly serverProdMain = (path: string) => {
 		this.config.files.server.prodMain = path
 	}
 
+	/**
+	 * Set the main client entry point.
+	 * @param path
+	 */
 	readonly clientMain = (path: string) => {
 		this.config.files.client.main = path
 	}
 
+	/**
+	 * Set the client entry point for development.
+	 * @param path
+	 */
 	readonly clientDevMain = (path: string) => {
 		this.config.files.client.devMain = path
 	}
 
+	/**
+	 * Set the client entry point for production.
+	 * @param path
+	 */
 	readonly clientProdMain = (path: string) => {
 		this.config.files.client.prodMain = path
 	}
 
+	/**
+	 * Set the server renderer entry point.
+	 * @param path
+	 */
 	readonly serverRenderer = (path: string) => {
 		this.config.files.server.renderer = path
 	}
 
+	/**
+	 * Set the server renderer entry point for development.
+	 * @param path
+	 */
 	readonly serverDevRenderer = (path: string) => {
 		this.config.files.server.devRenderer = path
 	}
 
+	/**
+	 * Set the server renderer entry point for production.
+	 * @param path
+	 */
 	readonly serverProdRenderer = (path: string) => {
 		this.config.files.server.prodRenderer = path
 	}
 
+	/**
+	 * Set a virtual file.
+	 * @param id
+	 * @param code
+	 */
 	readonly virtualFile = (id: string, code: string | (() => string | Promise<string>)) => {
 		this.vfs.set(id, code)
 	}
 
+	/**
+	 * Update the runtimes config.
+	 * @param fn
+	 */
 	readonly runtimes = (fn: (runtimes: VonoConfig["runtimes"]) => void) => {
 		fn(this.config.runtimes)
 	}
 
+	/**
+	 * Set the directory for file-based API routes.
+	 * @param path
+	 */
 	readonly apiRouteDirectory = (path: string) => {
 		this.config.apiRouteDirectory = path
 	}
 
+	/**
+	 * Set the port for the dev server.
+	 * @param port
+	 */
 	readonly port = (port: number) => {
 		this.config.port = port
 	}
 
+	/**
+	 * Add a callback to be called after the configuration is done.
+	 * @param afterConfigCallback
+	 */
 	readonly afterConfiguration = (afterConfigCallback: VonoPlugin) => {
-		this.afterConfigCallbacks.add(afterConfigCallback)
+		this[vonoInternal].afterConfigCallbacks.add(afterConfigCallback)
 	}
 
+	/**
+	 * Virtual file system.
+	 */
 	readonly vfs = new VirtualFileSystem()
 
-	afterConfigCallbacks = new Set<VonoPlugin>
+	;[vonoInternal]: {
+		userConfigFunction?: (vono: Vono) => Promise<void> | void
+		afterConfigCallbacks: Set<VonoPlugin>
+	} = {
+		userConfigFunction: undefined,
+		afterConfigCallbacks: new Set
+	}
 }
 

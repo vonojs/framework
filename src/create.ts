@@ -147,7 +147,7 @@ export default function(request: Request) {
 
 await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"), `import { clientEntry, css } from "@vonojs/framework/server";
 
-export default function(request: Request) {
+export default function(_request: Request) {
 	return new Response(template, { headers: { "content-type": "text/html" } })
 }
 
