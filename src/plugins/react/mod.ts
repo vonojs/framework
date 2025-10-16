@@ -10,8 +10,8 @@ import {reactRuntimeDirectory} from "./runtime";
  */
 const reactPlugin = (
 	config?: Options & { renderRoot?: string }
-): VonoPlugin => ({ runtimes, vitePlugin, virtualFile }) => {
-	vitePlugin(react(config))
+): VonoPlugin => ({ runtimes, vitePlugins, virtualFile }) => {
+	vitePlugins(react(config))
 	runtimes(x => {
 		x.client.dev = path.join(reactRuntimeDirectory, "clientDev")
 		x.client.prod = path.join(reactRuntimeDirectory, "clientProd")

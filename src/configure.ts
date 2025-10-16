@@ -19,7 +19,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 	})
 
 	try {
-		vono.userConfigFunction?.(vono)
+		await vono.userConfigFunction?.(vono)
 	} catch (e) {
 		consola.error("Error in vono config function:", e)
 		process.exit(1)
@@ -27,7 +27,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 
 	for(const plugin of vono.config.plugins) {
 		try {
-			plugin(vono)
+			await plugin(vono)
 		} catch (e) {
 			consola.error(`Error in plugin ${plugin.name}:`, e)
 			process.exit(1)
@@ -68,7 +68,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 							{
 								test: /#vite-manifest/,
 								name: "manifest",
-							}
+							},
 						]
 					}
 				}
@@ -103,7 +103,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 		}) : undefined,
 	})
 
-	vono.vitePlugin(nitro({ config: nitroConfig }))
+	vono.vitePlugins(nitro({ config: nitroConfig }))
 
 	// if client entry is defined, use it as input for client build
 	const clientEntry = entries.getClientEntry(mode)
@@ -120,5 +120,14 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 				},
 			}
 		})
+	}
+
+	for (const afterConfigCallback of vono.afterConfigCallbacks) {
+		try {
+			await afterConfigCallback(vono)
+		} catch (e) {
+			consola.error(`Error in afterConfig callback ${afterConfigCallback.name}:`, e)
+			process.exit(1)
+		}
 	}
 }

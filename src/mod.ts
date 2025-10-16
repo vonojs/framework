@@ -1,14 +1,27 @@
-import {type UserConfig as ViteConfig} from "vite"
+import {type PluginOption, type UserConfig as ViteConfig} from "vite"
 import defu from "defu";
 import {VirtualFileSystem} from "./vfs.ts";
 import type {NitroPluginConfig} from "nitro/vite";
 
-type BuildTarget = string;
+export const BuildTarget = {
+	Node : undefined, // default, no value
+	NodeHandler: "node",
+	Deno: "deno",
+	Bun: "bun",
+	Cloudflare: "cloudflare-module",
+	Netlify: "netlify",
+	DenoDeploy: "deno_deploy",
+	Azure: "azure",
+	AWSLambda: "aws_lambda",
+	Vercel: "vercel",
+}
+
+type BuildTarget = typeof BuildTarget[keyof typeof BuildTarget]
 
 interface VonoConfig {
 	vite: ViteConfig
 	nitro: NonNullable<NitroPluginConfig["config"]>
-	plugins: Array<(vono: Vono) => void>
+	plugins: Array<VonoPlugin>
 	apiRouteDirectory?: string,
 	port?: number,
 	files: {
@@ -40,10 +53,10 @@ interface VonoConfig {
 	}
 }
 
-export type VonoPlugin = (vono: Vono) => void
+export type VonoPlugin = (vono: Vono) => void | Promise<void>;
 
 export class Vono {
-	constructor(public readonly userConfigFunction?: (vono: Vono) => void) {}
+	constructor(public readonly userConfigFunction?: (vono: Vono) => Promise<void> | void) {}
 
 	readonly config: VonoConfig = {
 		plugins: [],
@@ -61,16 +74,27 @@ export class Vono {
 		}
 	}
 
+	readonly BuildTarget = BuildTarget
+
+	/**
+	 * Add a vono plugin to the config.
+	 * @param plugin
+	 */
 	plugin = (plugin: (vono: Vono) => void) => {
 		this.config.plugins?.push(plugin)
 	}
 
-	readonly buildFor = (output: BuildTarget, options?: any) => {
-		this.config.nitro.preset = output
+	/**
+	 * Set the build target for the server.
+	 * @param target - {@link BuildTarget}
+	 * @param options
+	 */
+	readonly buildFor = (target: BuildTarget, options?: any) => {
+		this.config.nitro.preset = target
 		this.config.nitro = defu(this.config.nitro!, options ?? {})
 	}
 
-	readonly vitePlugin = (plugins: ViteConfig["plugins"]) => {
+	readonly vitePlugins = (...plugins: PluginOption[]) => {
 		this.config.vite.plugins!.push(plugins)
 	}
 
@@ -134,6 +158,12 @@ export class Vono {
 		this.config.port = port
 	}
 
+	readonly afterConfiguration = (afterConfigCallback: VonoPlugin) => {
+		this.afterConfigCallbacks.add(afterConfigCallback)
+	}
+
 	readonly vfs = new VirtualFileSystem()
+
+	afterConfigCallbacks = new Set<VonoPlugin>
 }
 

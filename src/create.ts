@@ -22,32 +22,24 @@ if(exists) {
 	process.exit(1)
 }
 
-const target = await consola.prompt("Choose a built target (this can be changed later):", {
-	type: "select",
-	options: [
-		"Node",
-		"Deno",
-		"Bun",
-		"Cloudflare",
-		"Netlify",
-		"Deno Deploy",
-		"Azure",
-		"AWS Lambda",
-		"Vercel",
-	],
-	initial: "Node.js"
-})
-
 const targets = {
-	"Deno": "deno",
-	"Bun": "bun",
-	"Cloudflare": "cloudflare-module",
-	"Netlify": "netlify",
-	"Deno Deploy": "deno_deploy",
-	"Azure": "azure",
-	"AWS Lambda": "aws_lambda",
-	"Vercel": "vercel",
+	"Node": "Node",
+	"Node (Custom Handler)": "NodeHandler",
+	"Deno": "Deno",
+	"Bun": "Bun",
+	"Cloudflare": "Cloudflare",
+	"Netlify": "Netlify",
+	"Deno Deploy": "DenoDeploy",
+	"Azure": "Azure",
+	"AWS Lambda": "AWSLambda",
+	"Vercel": "Vercel",
 }
+
+const target = await consola.prompt("Choose a built target (this can be changed later) (experimental):", {
+	type: "select",
+	options: Object.keys(targets),
+	initial: "Node"
+}) as keyof typeof targets;
 
 consola.log("")
 consola.start("Creating project...");
@@ -58,8 +50,8 @@ await fs.writeFile(
 	`import { Vono } from "@vonojs/framework";
 
 // https://github.com/vonojs/framework
-export default new Vono(({ buildFor }) => {
-	${target === "Node" ? "" : `buildFor("${targets[target]}")`}
+export default new Vono(({ buildFor, BuildTarget }) => {
+	${target === "Node" ? "" : `buildFor(BuildTarget.${targets[target]})`}
 })`
 )
 
