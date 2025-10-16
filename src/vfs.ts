@@ -1,7 +1,7 @@
 import type { Plugin } from "vite";
 
 export class VirtualFileSystem {
-	static ID = "#vono/"
+	static ID = "virtual:vono/"
 
 	get = (id: string) =>
 		this.files.get(id)

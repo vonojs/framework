@@ -76,11 +76,11 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 		},
 		resolve: {
 			alias: {
-				"@vonojs/framework/server": "#vono/server",
+				"@vonojs/framework/server": "virtual:vono/server",
 				// bind USER entry points to aliased paths
 				"@vonojs/framework/serverEntry": serverEntry.path,
-				"@vonojs/framework/clientEntry": clientEntryExists ? clientEntryPath : "",
-				"@vonojs/framework/rendererEntry": rendererEntryExists ? rendererEntryPath : "",
+				"@vonojs/framework/clientEntry": clientEntryExists ? clientEntryPath! : "",
+				"@vonojs/framework/rendererEntry": rendererEntryExists ? rendererEntryPath! : "",
 			},
 		}
 	})

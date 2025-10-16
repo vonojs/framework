@@ -3,7 +3,7 @@ import type { Plugin } from "vite";
 
 export function virtualManifest(): Plugin {
 	let manifest = "{}";
-	const id = "#vite-manifest";
+	const id = "virtual:vite-manifest";
 	const resolvedId = `\0${id}`;
 	return {
 		name: "vono-manifest",
