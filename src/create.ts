@@ -175,6 +175,7 @@ await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "routes",
 
 consola.success("Project created successfully!")
 consola.log("")
-consola.info("To get started, run:")
+consola.info("To get started:")
 consola.log(`  cd ${name}`)
-consola.log("  vono dev")
+consola.log(`  {your_package_manager} install`)
+consola.log("  {your_package_manager} vono dev")
