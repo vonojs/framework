@@ -136,19 +136,17 @@ await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "main.ts"
 console.log("Hello from clientMain!")
 `)
 
-await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "main.ts"), `import {
-defineHandler } from "@vonojs/framework/server"
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "main.ts"), `import { defineHandler } from "@vonojs/framework/server";
 
 function loggingMiddleware(url: URL) {
-  console.log(\`[\${Date.now()}] request: \${url.pathname}\`)
+  console.log(\`[${Date.now()}] request: \${url.pathname}\`);
 }
 
 export default defineHandler((ctx) => {
-	loggingMiddleware(ctx.url)
-})
-`)
+  loggingMiddleware(ctx.url);
+});`)
 
-await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"), `import { clientEntry, css, defineRenderHandler } from "@vonojs/framework/server";
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"), `import { defineRenderHandler, clientEntry, css } from "@vonojs/framework/server";
 
 export default defineRenderHandler((_ctx) => ({
 	body: template,
@@ -160,7 +158,7 @@ export default defineRenderHandler((_ctx) => ({
 const template = \`
 <!DOCTYPE html>
 <head>
-	\${css.map(c => \`<link rel="stylesheet" href="\${c}">\`).join("\\n")}
+	\${css.map(href => \`<link rel="stylesheet" href="\${href}">\`).join("\\n")}
 	<script type="module" src="\${clientEntry}"></script>
 </head>
 <body>
@@ -172,12 +170,11 @@ const template = \`
 
 await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "assets", "styles.css"), `body {
 	font-family: sans-serif;
-}
-`)
+}`)
 
 await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "routes", "api", "ping.ts"), `import { defineHandler } from "@vonojs/framework/server";
 
-export default defineHandler(() => "ping")`)
+export default defineHandler(() => "ping");`)
 
 consola.success("Project created successfully!")
 consola.log("")
