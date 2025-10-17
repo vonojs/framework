@@ -58,7 +58,11 @@ async function build () {
 
 	await Promise.all([
 		fs.copyFile("./src/server.d.ts", "./dist/server.d.ts"),
+		fs.rm("./dist/server.d.js"),
 		fs.copyFile("./src/client.d.ts", "./dist/client.d.ts"),
+		fs.rm("./dist/client.d.js"),
+		fs.copyFile("./src/entries.d.ts", "./dist/entries.d.ts"),
+		fs.rm("./dist/entries.d.js"),
 	])
 }
 

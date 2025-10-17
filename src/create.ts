@@ -136,20 +136,26 @@ await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "main.ts"
 console.log("Hello from clientMain!")
 `)
 
-await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "main.ts"), `function loggingMiddleware(context: Request) {
-  console.log(\`[\${Date.now()}] Request: \${new URL(context.url).pathname}\`)
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "main.ts"), `import {
+defineHandler } from "@vonojs/framework/server"
+
+function loggingMiddleware(url: URL) {
+  console.log(\`[\${Date.now()}] request: \${url.pathname}\`)
 }
 
-export default function(request: Request) {
-	loggingMiddleware(request)
-}
+export default defineHandler((ctx) => {
+	loggingMiddleware(ctx.url)
+})
 `)
 
-await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"), `import { clientEntry, css } from "@vonojs/framework/server";
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"), `import { clientEntry, css, defineRenderHandler } from "@vonojs/framework/server";
 
-export default function(_request: Request) {
-	return new Response(template, { headers: { "content-type": "text/html" } })
-}
+export default defineRenderHandler((_ctx) => ({
+	body: template,
+	headers: {
+		"content-type": "text/html",
+	}
+}))
 
 const template = \`
 <!DOCTYPE html>
@@ -169,9 +175,9 @@ await fs.writeFile(path.join(process.cwd(), name, "src", "clientMain", "assets",
 }
 `)
 
-await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "routes", "api", "ping.ts"), `export default () => {
-  return "ping";
-}`)
+await fs.writeFile(path.join(process.cwd(), name, "src", "serverMain", "routes", "api", "ping.ts"), `import { defineHandler } from "@vonojs/framework/server";
+
+export default defineHandler(() => "ping")`)
 
 consola.success("Project created successfully!")
 consola.log("")
