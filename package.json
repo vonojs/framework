@@ -1,22 +1,13 @@
 {
   "name": "@vonojs/framework",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "npx tsx build.ts && tsc --declaration --emitDeclarationOnly --project tsconfig.json"
-  },
-  "dependencies": {
-    "@types/node": "^24.7.2",
-    "c12": "^3.3.0",
-    "consola": "^3.4.2",
-    "defu": "^6.1.4",
-    "nitro": "npm:nitro-nightly@latest",
-    "typescript": "^5.9.3",
-    "vite": "npm:rolldown-vite@7.1.14",
-    "vite-tsconfig-paths": "^5.1.4"
+    "build": "npx tsx build.ts",
+    "build:types": "tsc --declaration --emitDeclarationOnly --project tsconfig.json"
   },
   "files": [
     "dist"
@@ -30,16 +21,26 @@
       "import": "./dist/mod.js",
       "types": "./dist/mod.d.ts"
     },
-    "./server": {
-      "import": "./dist/server.js",
-      "types": "./dist/server.d.ts"
-    },
+    "./server": "./dist/server.d.ts",
     "./client": "./dist/client.d.ts",
     "./react": {
       "import": "./dist/plugins/react/mod.js"
     }
   },
+  "dependencies": {
+    "c12": "^3.3.0",
+    "consola": "^3.4.2",
+    "defu": "^6.1.4"
+  },
+  "peerDependencies": {
+    "vite": "npm:rolldown-vite@7.1.14",
+    "nitro": "npm:nitro-nightly@latest",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
   "devDependencies": {
-    "esbuild": "^0.25.11"
+    "esbuild": "^0.25.11",
+    "tsx": "^4.20.6",
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,1 +1,0 @@
-import "#vono/plugin-react/csr"

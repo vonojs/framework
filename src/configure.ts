@@ -3,7 +3,7 @@ import {VonoEntryPoints} from "./entryPoints.ts";
 import {virtualManifest} from "./manifestPlugin.ts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import virtualServerFile from "./virtual/server.ts";
-import {defaultRuntimes} from "./runtime/index.ts";
+import {defaultRuntimes} from "./runtimes/index.ts";
 import defu from "defu";
 import {nitro} from "nitro/vite"
 import consola from "consola";
@@ -77,7 +77,6 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 		resolve: {
 			alias: {
 				"@vonojs/framework/server": "virtual:vono/server",
-				// bind USER entry points to aliased paths
 				"@vonojs/framework/serverEntry": serverEntry.path,
 				"@vonojs/framework/clientEntry": clientEntryExists ? clientEntryPath! : "",
 				"@vonojs/framework/rendererEntry": rendererEntryExists ? rendererEntryPath! : "",
@@ -103,6 +102,8 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 		}) : undefined,
 	})
 
+
+	// @ts-ignore
 	vono.vitePlugins(nitro({ config: nitroConfig }))
 
 	// if client entry is defined, use it as input for client build

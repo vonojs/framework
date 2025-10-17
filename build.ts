@@ -1,18 +1,21 @@
 import * as esbuild from "esbuild"
 import * as fs from "fs/promises"
+import consola from "consola";
+import {spawn} from "child_process";
 
-let replaceTsExt = (path: string) =>
-	path.endsWith(".ts") ? path.replace(".ts", "") + ".js" : path
+const replaceTsExt = (path: string) =>
+	path.endsWith(".ts") ? path.slice(0, -3) + ".js" : path;
 
-export let build = async (args: { defines: Record<string, any>, drop: string[] }) => {
+async function build () {
+	consola.start(`Building source...`)
+	await fs.rm("dist", { recursive: true, force: true })
+	let t = performance.now()
 	await esbuild.build({
 		entryPoints: ["src/**/*.ts"],
 		bundle: true,
 		outdir: "dist",
 		format: "esm",
 		platform: "node",
-		define: args.defines,
-		dropLabels: args.drop,
 		treeShaking: true,
 		target: ["es2022"],
 		plugins: [{
@@ -31,19 +34,35 @@ export let build = async (args: { defines: Record<string, any>, drop: string[] }
 			},
 		}],
 	})
+
+	consola.success(`Built source in ${(performance.now() - t).toFixed(0)}ms`)
+
+	consola.start(`Building types...`)
+
+	await new Promise((resolve) => {
+		const process = spawn('pnpm', ['run', 'build:types'], {stdio: 'inherit'})
+		process.on('exit', code => {
+			if (code === 0) {
+				consola.success(`Built types successfully`)
+				resolve(void 0)
+			} else {
+				consola.error(`Errors occurred during type building`)
+				resolve(void 1)
+			}
+		})
+
+		process.on('error', (err) => {
+			consola.error(err.message)
+		})
+	})
+
+	await Promise.all([
+		fs.copyFile("./src/server.d.ts", "./dist/server.d.ts"),
+		fs.copyFile("./src/client.d.ts", "./dist/client.d.ts"),
+	])
 }
 
-await fs.rm("dist", { recursive: true, force: true })
 
-console.info(`Building...`)
+await build()
+	.catch(consola.error)
 
-let t = performance.now()
-
-await build({
-	defines: {},
-	drop: [],
-})
-
-await fs.writeFile("./dist/client.d.ts", "/// <reference types=\"vite/client\" />")
-
-console.info(`Built in ${(performance.now() - t).toFixed(0)}ms`)

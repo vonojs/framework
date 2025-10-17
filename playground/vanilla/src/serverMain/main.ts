@@ -1,5 +1,5 @@
-import { clientEntry } from "@vonojs/framework/server";
+import { clientEntry, defineHandler } from "@vonojs/framework/server";
 
-export default function (request: Request) {
-		// throw new Error("Not implemented")
-}
+export default defineHandler(async (ctx) => {
+	console.log("client entry:", clientEntry)
+})

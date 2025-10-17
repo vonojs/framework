@@ -1,7 +1,11 @@
+// @ts-ignore
+// @ts-ignore
+
 import {type PluginOption, type UserConfig as ViteConfig} from "vite"
 import defu from "defu";
 import {VirtualFileSystem} from "./vfs.ts";
 import type {NitroPluginConfig} from "nitro/vite";
+export { cloneResponse } from "./utils.ts"
 
 export const BuildTarget = {
 	Node : undefined, // default, no value
