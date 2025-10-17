@@ -2,8 +2,16 @@
 
 import { consola } from "consola";
 import * as fs from "node:fs/promises";
-import {fileExists} from "./utils.ts";
 import path from "node:path";
+
+async function fileExists(filePath) {
+	try {
+		await fs.access(filePath);
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 consola.start("Creating vono.js project");
 let name = await consola.prompt("Enter project name:");
@@ -39,7 +47,7 @@ const target = await consola.prompt("Choose a built target (this can be changed 
 	type: "select",
 	options: Object.keys(targets),
 	initial: "Node"
-}) as keyof typeof targets;
+})
 
 consola.log("")
 consola.start("Creating project...");
@@ -180,5 +188,5 @@ consola.success("Project created successfully!")
 consola.log("")
 consola.info("To get started:")
 consola.log(`  cd ${name}`)
-consola.log(`  {your_package_manager} install`)
-consola.log("  {your_package_manager} vono dev")
+consola.log(`  npm install`)
+consola.log("  npm run dev")
