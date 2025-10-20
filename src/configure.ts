@@ -61,18 +61,18 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 	vono.viteConfig({
 		build: {
 			manifest: true,
-			rolldownOptions: {
-				output: {
-					advancedChunks: {
-						groups: [
-							{
-								test: /#vite-manifest/,
-								name: "manifest",
-							},
-						]
-					}
-				}
-			}
+			// rollupOptions: {
+			// 	output: {
+			// 		advancedChunks: {
+			// 			groups: [
+			// 				{
+			// 					test: /#vite-manifest/,
+			// 					name: "manifest",
+			// 				},
+			// 			]
+			// 		}
+			// 	}
+			// }
 		},
 		resolve: {
 			alias: {
@@ -112,7 +112,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 			environments: {
 				client: {
 					build: {
-						rolldownOptions: {
+						rollupOptions: {
 							input: runtimes.client
 						}
 					},
