@@ -1,6 +1,5 @@
 import {type Vono, vonoInternal} from "./mod.ts";
 import {VonoEntryPoints} from "./entryPoints.ts";
-import {virtualManifest} from "./manifestPlugin.ts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import virtualServerFile from "./virtual/server.ts";
 import {defaultRuntimes} from "./runtimes/index.ts";
@@ -13,7 +12,6 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 	vono.viteConfig({
 		plugins: [
 			vono.vfs.vitePlugin(),
-			virtualManifest(),
 			tsconfigPaths(),
 		],
 	})
