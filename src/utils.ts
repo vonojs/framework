@@ -1,7 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { existsSync } from "node:fs";
-import type { Environment } from "vite";
 import fs from "fs/promises";
 
 export const resolveThisDir = (path: string): string =>

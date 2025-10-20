@@ -87,8 +87,7 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 	// set virtual server file to point to correct runtime
 	vono.vfs.set(
 		"server",
-		virtualServerFile(runtimes.client,
-		)
+		virtualServerFile(runtimes.client, mode === "prod")
 	)
 
 	const nitroConfig = defu(vono.config.nitro, {
