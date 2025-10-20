@@ -22,7 +22,11 @@
     },
     "./server": "./dist/server.d.ts",
     "./client": "./dist/client.d.ts",
-    "./entries": "./dist/entries.d.ts"
+    "./entries": "./dist/entries.d.ts",
+    "./lib/nitro": {
+      "import": "./dist/lib/nitro.js",
+      "types": "./dist/lib/nitro.d.ts"
+    }
   },
   "dependencies": {
     "c12": "^3.3.0",
